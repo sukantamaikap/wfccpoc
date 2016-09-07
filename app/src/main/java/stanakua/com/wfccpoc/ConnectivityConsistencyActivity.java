@@ -24,6 +24,6 @@ public class ConnectivityConsistencyActivity extends SingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        return null;
+        return ConnectivityConsistencyFragment.newInstance();
     }
 }

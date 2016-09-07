@@ -16,4 +16,6 @@
 
 <resources>
     <string name="app_name">WFCCPOC</string>
+    <string name="button_start">Start!</string>
+    <string name="button_stop">Stop!</string>
 </resources>
