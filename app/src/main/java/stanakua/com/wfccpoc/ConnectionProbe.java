@@ -16,9 +16,13 @@
 
 package stanakua.com.wfccpoc;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.IOException;
@@ -41,12 +45,13 @@ public class ConnectionProbe {
                 urlConnection.setConnectTimeout(1500); urlConnection.connect();
                 return (urlConnection.getResponseCode() == 204 && urlConnection.getContentLength() == 0);
             } catch (IOException e) {
-                Log.e(TAG, "Error checking internet connection", e);
+                Log.d(TAG, "Error establishing connection, internet connection unavailable!");
+                return Boolean.FALSE;
             }
         } else {
-            Log.d(TAG, "No network available!");
+            Log.d(TAG, "Wifi not available, no network connection available");
         }
-        return false;
+        return Boolean.FALSE;
     }
 
     private static boolean isNetworkAvailable(final Context context) {
@@ -54,4 +59,17 @@ public class ConnectionProbe {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
     }
+
+//    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+//    public static boolean hasInternetConnection(final Context context) {
+//        final ConnectivityManager connectivityManager = (ConnectivityManager)context.
+//                getSystemService(Context.CONNECTIVITY_SERVICE);
+//
+//        final Network network = connectivityManager.getActiveNetwork();
+//        final NetworkCapabilities capabilities = connectivityManager
+//                .getNetworkCapabilities(network);
+//
+//        return capabilities != null
+//                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+//    }
 }

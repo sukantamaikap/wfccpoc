@@ -41,7 +41,7 @@ public class ConnectionProbeFragment extends Fragment {
 
     private Button mStartButton;
     private Button mStopButton;
-//    private ProgressBar mProgressBar;
+    private ProgressBar mProgressBar;
     private EditText mConnectionStatus;
 
 
@@ -62,13 +62,14 @@ public class ConnectionProbeFragment extends Fragment {
                              @Nullable final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_connectivity, container, false);
 
-//        this.mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar_probe_progress);
+        this.mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar_probe_progress);
         this.mConnectionStatus = (EditText) view.findViewById(R.id.connection_log);
         this.mStartButton = (Button) view.findViewById(R.id.button_start);
 
         this.mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ConnectionProbeFragment.this.mStartButton.setClickable(Boolean.FALSE);
                 ConnectionProbeFragment.this.startProbe();
             }
         });
@@ -78,6 +79,7 @@ public class ConnectionProbeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(ConnectionProbeFragment.this.getActivity(), "Stopped !!", Toast.LENGTH_LONG).show();
+                ConnectionProbeFragment.this.mStartButton.setClickable(Boolean.TRUE);
             }
         });
         return view;
@@ -85,22 +87,7 @@ public class ConnectionProbeFragment extends Fragment {
 
     private void startProbe() {
         Log.d(TAG, "Starting probe");
-
-        final Handler connectionProbeHandler = new Handler();
-        final String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-        ConnectionProbeFragment.this.mConnectionStatus.append("Probe started at : " + currentDateTimeString);
-        final Runnable probeThread = new Runnable() {
-            @Override
-            public void run() {
-                final boolean hasConnection = ConnectionProbe.hasInternetAccess(ConnectionProbeFragment.this.getActivity());
-                if (!hasConnection) {
-                    ConnectionProbeFragment.this.mConnectionStatus.append("No net connection at : " + currentDateTimeString);
-                }
-                else {
-                    Log.d(TAG, "Device has connection to internet");
-                }
-            }
-        };
-        connectionProbeHandler.postDelayed(probeThread, 1000);
+        final NetworkProbingThread probingThread = new NetworkProbingThread(this.getActivity());
+        probingThread.start();
     }
 }

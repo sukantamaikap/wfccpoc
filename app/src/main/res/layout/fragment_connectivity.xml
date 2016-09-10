@@ -34,12 +34,12 @@
         android:layout_height="wrap_content"
         tools:text="Connection gone at : 12:30 pm\n Connection gone at : 12:31 pm \n Connection gone at : 12:32 pm \n Connection gone at : 12:33 pm \n Connection gone at : 12:34 pm \n Connection gone at : 12:35 pm"/>
 
-    <!--<ProgressBar-->
-        <!--android:id="@+id/progress_bar_probe_progress"-->
-        <!--android:visibility="gone"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--style="?android:attr/progressBarStyleHorizontal"/>-->
+    <ProgressBar
+        android:id="@+id/progress_bar_probe_progress"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyleHorizontal"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
