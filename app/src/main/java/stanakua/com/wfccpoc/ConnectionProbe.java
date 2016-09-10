@@ -28,9 +28,9 @@ import java.net.URL;
 /**
  * Helper class to check
  */
-public class ConnectionDetector {
+public class ConnectionProbe {
 
-    private static String TAG = "ConnectionDetector";
+    private static String TAG = "ConnectionProbe";
 
     public static boolean hasInternetAccess(final Context context) {
         if (isNetworkAvailable(context)) {

@@ -17,13 +17,11 @@
 package stanakua.com.wfccpoc;
 
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 public class ConnectivityConsistencyActivity extends SingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        return ConnectivityConsistencyFragment.newInstance();
+        return ConnectionProbeFragment.newInstance();
     }
 }
