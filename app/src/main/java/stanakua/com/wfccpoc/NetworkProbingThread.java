@@ -20,10 +20,12 @@ import android.content.Context;
 import android.util.Log;
 
 /**
- * Created by smaikap on 10/9/16.
+ * Background thread probing the network.
  */
 public class NetworkProbingThread extends Thread {
     private static final String TAG = "NetworkProbingThread";
+
+    private volatile boolean mRunning = Boolean.TRUE;
 
     private Context mContext;
 
@@ -31,10 +33,24 @@ public class NetworkProbingThread extends Thread {
         this.mContext = context;
     }
 
+    public void setProbeRunning(boolean running) {
+        Log.i(TAG, "Request to change thread status, running : " + running);
+        this.mRunning = running;
+    }
+
     @Override
     public void run() {
-        while (true) {
+        Log.i(TAG, "running network probe");
+        while (this.mRunning) {
             final boolean hasConnection = ConnectionProbe.hasInternetAccess(mContext);
+            if (!hasConnection) {
+//                ConnectionProbeFragment.getUiUpdaterHandler().post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                    }
+//                });
+            }
         }
     }
 }

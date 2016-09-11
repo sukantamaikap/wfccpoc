@@ -42,7 +42,8 @@ public class ConnectionProbe {
                 final HttpURLConnection urlConnection = (HttpURLConnection) (new URL("http://clients3.google.com/generate_204").openConnection());
                 urlConnection.setRequestProperty("User-Agent", "Android");
                 urlConnection.setRequestProperty("Connection", "close");
-                urlConnection.setConnectTimeout(1500); urlConnection.connect();
+                urlConnection.setConnectTimeout(1500);
+                urlConnection.connect();
                 return (urlConnection.getResponseCode() == 204 && urlConnection.getContentLength() == 0);
             } catch (IOException e) {
                 Log.d(TAG, "Error establishing connection, internet connection unavailable!");
@@ -59,17 +60,4 @@ public class ConnectionProbe {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
     }
-
-//    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-//    public static boolean hasInternetConnection(final Context context) {
-//        final ConnectivityManager connectivityManager = (ConnectivityManager)context.
-//                getSystemService(Context.CONNECTIVITY_SERVICE);
-//
-//        final Network network = connectivityManager.getActiveNetwork();
-//        final NetworkCapabilities capabilities = connectivityManager
-//                .getNetworkCapabilities(network);
-//
-//        return capabilities != null
-//                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-//    }
 }

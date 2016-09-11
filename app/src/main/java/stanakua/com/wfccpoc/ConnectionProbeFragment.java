@@ -29,27 +29,28 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.util.Date;
+import java.util.Calendar;
 
-/**
- * Created by smaikap on 6/9/16.
- */
 public class ConnectionProbeFragment extends Fragment {
 
     private static final String TAG = "ConnectionProbeFragment";
+
+    private final Handler mUiUpdaterHandler = new Handler();
 
     private Button mStartButton;
     private Button mStopButton;
     private ProgressBar mProgressBar;
     private EditText mConnectionStatus;
 
+//    public static Handler getUiUpdaterHandler() {
+//        return mUiUpdaterHandler;
+//    }
 
-    @Override
-    public void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.setRetainInstance(Boolean.TRUE);
-    }
+//    @Override
+//    public void onCreate(@Nullable final Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        this.setRetainInstance(Boolean.TRUE);
+//    }
 
     public static ConnectionProbeFragment newInstance() {
         return new ConnectionProbeFragment();
@@ -69,7 +70,7 @@ public class ConnectionProbeFragment extends Fragment {
         this.mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ConnectionProbeFragment.this.mStartButton.setClickable(Boolean.FALSE);
+                ConnectionProbeFragment.this.mStartButton.setEnabled(Boolean.FALSE);
                 ConnectionProbeFragment.this.startProbe();
             }
         });
@@ -79,7 +80,7 @@ public class ConnectionProbeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(ConnectionProbeFragment.this.getActivity(), "Stopped !!", Toast.LENGTH_LONG).show();
-                ConnectionProbeFragment.this.mStartButton.setClickable(Boolean.TRUE);
+                ConnectionProbeFragment.this.mStartButton.setEnabled(Boolean.TRUE);
             }
         });
         return view;
@@ -87,7 +88,22 @@ public class ConnectionProbeFragment extends Fragment {
 
     private void startProbe() {
         Log.d(TAG, "Starting probe");
-        final NetworkProbingThread probingThread = new NetworkProbingThread(this.getActivity());
-        probingThread.start();
+        final Runnable networkProbeRunnable = new Runnable() {
+            @Override
+            public void run() {
+                while (Boolean.TRUE) {
+                    final boolean hasConnection = ConnectionProbe.hasInternetAccess(ConnectionProbeFragment.this.getActivity());
+                    if (!hasConnection) {
+                        ConnectionProbeFragment.this.mUiUpdaterHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                ConnectionProbeFragment.this.mConnectionStatus.append("NC : " + java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
+                            }
+                        });
+                    }
+                }
+            }
+        };
+        new Thread(networkProbeRunnable).start();
     }
 }
