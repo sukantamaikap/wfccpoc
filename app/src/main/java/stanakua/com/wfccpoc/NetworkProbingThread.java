@@ -17,10 +17,15 @@
 package stanakua.com.wfccpoc;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import java.text.DateFormat;
+import java.util.Calendar;
+
 /**
- * Background thread probing the network.
+ * Background thread probing the network. Calls {@link ConnectionProbeFragment} to update the UI
+ * when there is no connection.
  */
 public class NetworkProbingThread extends Thread {
     private static final String TAG = "NetworkProbingThread";
@@ -28,12 +33,18 @@ public class NetworkProbingThread extends Thread {
     private volatile boolean mRunning = Boolean.TRUE;
 
     private Context mContext;
+    private Fragment callingFragment;
 
-    public NetworkProbingThread(final Context context) {
+    public NetworkProbingThread(final Context context, final Fragment fragment) {
         this.mContext = context;
+        this.callingFragment = fragment;
     }
 
-    public void setProbeRunning(boolean running) {
+    /**
+     * Call this to stop the probing thread.
+     * @param running : pass boolean
+     */
+    public void switchProbeRunningStatus(boolean running) {
         Log.i(TAG, "Request to change thread status, running : " + running);
         this.mRunning = running;
     }
@@ -44,12 +55,14 @@ public class NetworkProbingThread extends Thread {
         while (this.mRunning) {
             final boolean hasConnection = ConnectionProbe.hasInternetAccess(mContext);
             if (!hasConnection) {
-//                ConnectionProbeFragment.getUiUpdaterHandler().post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//
-//                    }
-//                });
+                ((ConnectionProbeFragment)this.callingFragment)
+                        .updateConnectionStatus("No connection at : "
+                                + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    this.mRunning = Boolean.FALSE;
+                }
             }
         }
     }

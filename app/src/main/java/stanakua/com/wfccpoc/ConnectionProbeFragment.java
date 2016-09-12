@@ -29,31 +29,27 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.util.Calendar;
-
 public class ConnectionProbeFragment extends Fragment {
 
     private static final String TAG = "ConnectionProbeFragment";
 
-    private final Handler mUiUpdaterHandler = new Handler();
+    private Handler mUiUpdaterHandler;
 
     private Button mStartButton;
     private Button mStopButton;
     private ProgressBar mProgressBar;
     private EditText mConnectionStatus;
-
-//    public static Handler getUiUpdaterHandler() {
-//        return mUiUpdaterHandler;
-//    }
-
-//    @Override
-//    public void onCreate(@Nullable final Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        this.setRetainInstance(Boolean.TRUE);
-//    }
+    private NetworkProbingThread mNetworkProbingThread;
 
     public static ConnectionProbeFragment newInstance() {
         return new ConnectionProbeFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.setRetainInstance(Boolean.TRUE);
+        this.mUiUpdaterHandler = new Handler(this.getContext().getMainLooper());
     }
 
     @Nullable
@@ -79,6 +75,7 @@ public class ConnectionProbeFragment extends Fragment {
         this.mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ConnectionProbeFragment.this.mNetworkProbingThread.switchProbeRunningStatus(Boolean.FALSE);
                 Toast.makeText(ConnectionProbeFragment.this.getActivity(), "Stopped !!", Toast.LENGTH_LONG).show();
                 ConnectionProbeFragment.this.mStartButton.setEnabled(Boolean.TRUE);
             }
@@ -86,24 +83,23 @@ public class ConnectionProbeFragment extends Fragment {
         return view;
     }
 
-    private void startProbe() {
-        Log.d(TAG, "Starting probe");
-        final Runnable networkProbeRunnable = new Runnable() {
+    /**
+     * To be used by network thread to update the {@link this.mConnectionStatus} only when there
+     * is no connection.
+     * @param status : String with time stamp for no connection occurrence.
+     */
+    public void updateConnectionStatus(final String status) {
+        this.mUiUpdaterHandler.post(new Runnable() {
             @Override
             public void run() {
-                while (Boolean.TRUE) {
-                    final boolean hasConnection = ConnectionProbe.hasInternetAccess(ConnectionProbeFragment.this.getActivity());
-                    if (!hasConnection) {
-                        ConnectionProbeFragment.this.mUiUpdaterHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                ConnectionProbeFragment.this.mConnectionStatus.append("NC : " + java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
-                            }
-                        });
-                    }
-                }
+                ConnectionProbeFragment.this.mConnectionStatus.append(status);
             }
-        };
-        new Thread(networkProbeRunnable).start();
+        });
+    }
+
+    private void startProbe() {
+        Log.d(TAG, "Starting probe");
+        this.mNetworkProbingThread = new NetworkProbingThread(this.getActivity(), this);
+        this.mNetworkProbingThread.start();
     }
 }
