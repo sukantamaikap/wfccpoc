@@ -40,15 +40,6 @@ public class NetworkProbingThread extends Thread {
         this.callingFragment = fragment;
     }
 
-    /**
-     * Call this to stop the probing thread.
-     * @param running : pass boolean
-     */
-    public void switchProbeRunningStatus(boolean running) {
-        Log.i(TAG, "Request to change thread status, running : " + running);
-        this.mRunning = running;
-    }
-
     @Override
     public void run() {
         Log.i(TAG, "running network probe");
@@ -56,13 +47,21 @@ public class NetworkProbingThread extends Thread {
             final boolean hasConnection = ConnectionProbe.hasInternetAccess(mContext);
             if (!hasConnection) {
                 ((ConnectionProbeFragment)this.callingFragment)
-                        .updateConnectionStatus("No connection at : "
+                        .updateConnectionStatus("NC at : "
                                 + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    this.mRunning = Boolean.FALSE;
-                }
+            }
+
+            try {
+                Thread.sleep(3000);
+            } catch (final InterruptedException e) {
+                Log.i(TAG, "Thread interrupted, the execution with stop now ... ");
+                this.mRunning = Boolean.FALSE;
+                return;
+            }
+
+            if (Thread.interrupted()) {
+                this.mRunning = Boolean.FALSE;
+                break;
             }
         }
     }

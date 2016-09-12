@@ -75,7 +75,7 @@ public class ConnectionProbeFragment extends Fragment {
         this.mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ConnectionProbeFragment.this.mNetworkProbingThread.switchProbeRunningStatus(Boolean.FALSE);
+                ConnectionProbeFragment.this.mNetworkProbingThread.interrupt();
                 Toast.makeText(ConnectionProbeFragment.this.getActivity(), "Stopped !!", Toast.LENGTH_LONG).show();
                 ConnectionProbeFragment.this.mStartButton.setEnabled(Boolean.TRUE);
             }

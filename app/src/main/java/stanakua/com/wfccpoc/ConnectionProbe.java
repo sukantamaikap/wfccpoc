@@ -51,8 +51,8 @@ public class ConnectionProbe {
             }
         } else {
             Log.d(TAG, "Wifi not available, no network connection available");
+            return Boolean.FALSE;
         }
-        return Boolean.FALSE;
     }
 
     private static boolean isNetworkAvailable(final Context context) {
