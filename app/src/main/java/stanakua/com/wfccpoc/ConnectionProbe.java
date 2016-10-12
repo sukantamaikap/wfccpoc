@@ -19,10 +19,7 @@ package stanakua.com.wfccpoc;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.util.Log;
 
 import java.io.IOException;
@@ -34,16 +31,24 @@ import java.net.URL;
  */
 public class ConnectionProbe {
 
-    private static String TAG = "ConnectionProbe";
+    private static String TAG = ConnectionProbe.class.getSimpleName();
 
+    /**
+     * This is a thin client. Only concentrates on ensuring that it can connect to :
+     * @param context
+     * @return
+     */
     public static boolean hasInternetAccess(final Context context) {
         if (isNetworkAvailable(context)) {
             try {
+                final long startTime = System.currentTimeMillis();
                 final HttpURLConnection urlConnection = (HttpURLConnection) (new URL("http://clients3.google.com/generate_204").openConnection());
                 urlConnection.setRequestProperty("User-Agent", "Android");
                 urlConnection.setRequestProperty("Connection", "close");
                 urlConnection.setConnectTimeout(1500);
                 urlConnection.connect();
+                final long endTime = System.currentTimeMillis();
+                Log.i(TAG, "Thin access operation finished in mS : " + (endTime - startTime));
                 return (urlConnection.getResponseCode() == 204 && urlConnection.getContentLength() == 0);
             } catch (IOException e) {
                 Log.d(TAG, "Error establishing connection, internet connection unavailable!");
@@ -55,9 +60,36 @@ public class ConnectionProbe {
         }
     }
 
+    /**
+     * Use this method to calculate browsing speed. Ideal implementation would hit different feature reach web pages at random
+     * and calculate the time required to fetch the entire content of the page. This can be denoted as browsing speed.
+     * @param context
+     */
+    public static long calculateBrowsingSpeed(final Context context) {
+        return 1L;
+    }
+
+    /**
+     * Use this method to calculate download speed. Ideally this should try to download a known file
+     * from a server and calculate the speed from the operation.
+     * @return speed in Mbps
+     */
+    public static long calculateDownloadSpeed(final Context context) {
+        return 1L;
+    }
+
+    /**
+     * Use this method to calculate upload speed. Ideally this should try to upload a file to a known server and
+     * calculate the speed from the operation .
+     * @return speed in Mbps
+     */
+    public static long calculateUploadSpeed(final Context context) {
+        return 1L;
+    }
+
     private static boolean isNetworkAvailable(final Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        final ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
     }
 }
