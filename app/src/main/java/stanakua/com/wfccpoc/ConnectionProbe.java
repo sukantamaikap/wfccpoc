@@ -37,7 +37,13 @@ import java.util.List;
 public class ConnectionProbe {
 
     private static String TAG = ConnectionProbe.class.getSimpleName();
-    private static List<String> mBrowsingTestUrl = Arrays.asList("https://500px.com/","https://www.google.co.in/", "https://in.yahoo.com/", "https://www.reddit.com/", "");
+    private static List<String> BROWSING_TEST_URL = Arrays.asList("https://500px.com/","https://www.google.co.in/",
+            "https://in.yahoo.com/",
+            "https://www.reddit.com/",
+            "http://www.bbc.com/",
+            "http://edition.cnn.com/",
+            "http://www.espncricinfo.com/",
+            "https://www.facebook.com/");
 
     /**
      * This is a thin client. Only concentrates on ensuring that it can connect to :
@@ -74,13 +80,14 @@ public class ConnectionProbe {
     public static float calculateBrowsingSpeed(final Context context) {
         ByteArrayOutputStream outputStream = null;
         InputStream inputStream = null;
+        SecureRandom random = new SecureRandom();
+        final int index = random.nextInt(BROWSING_TEST_URL.size());
+
         if (isNetworkAvailable(context)) {
-            SecureRandom random = new SecureRandom();
-            final int index = random.nextInt(mBrowsingTestUrl.size() + 1);
             try {
                 outputStream = new ByteArrayOutputStream();
                 final long startTime = System.currentTimeMillis();
-                HttpURLConnection urlc = (HttpURLConnection) (new URL("https://www.reddit.com/").openConnection());
+                HttpURLConnection urlc = (HttpURLConnection) (new URL(BROWSING_TEST_URL.get(index)).openConnection());
                 if (urlc.getResponseCode() != HttpURLConnection.HTTP_OK) {
                     throw new IOException(urlc.getResponseMessage() + " : with ");
                 }
@@ -92,7 +99,7 @@ public class ConnectionProbe {
                 }
                 final long endTime = System.currentTimeMillis();
                 final float speed = (outputStream.toByteArray().length * 1000f * 8f/ (1024f * 1024f)) / ((endTime - startTime));
-                Log.i(TAG, "Calculated speed in Mbps " + speed);
+                Log.i(TAG, "Calculated speed in Mbps " + speed + " for url : " + BROWSING_TEST_URL.get(index));
                 return speed;
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Exception occurred : ", e);
@@ -103,7 +110,8 @@ public class ConnectionProbe {
 //                inputStream.close();
             }
         }
-        return 0.0000000001f;
+        Log.e(TAG, "Error occurred for url : " + BROWSING_TEST_URL.get(index));
+        return -0.1f;
     }
 
     /**

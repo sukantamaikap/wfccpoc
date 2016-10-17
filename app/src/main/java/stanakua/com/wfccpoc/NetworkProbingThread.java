@@ -49,12 +49,12 @@ public class NetworkProbingThread extends Thread {
             if (!hasConnection) {
                 ((ConnectionProbeFragment)this.callingFragment)
                         .updateConnectionStatus("NC at : "
-                                + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
+                                + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime().getTime()) + "\n");
             }
 
             if (hasConnection && new SecureRandom().nextBoolean()) {
                 final float speed = ConnectionProbe.calculateBrowsingSpeed(this.mContext);
-                ((ConnectionProbeFragment)this.callingFragment).updateConnectionStatus("Speed is : " + speed + "Mbps, at " + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
+                ((ConnectionProbeFragment)this.callingFragment).updateConnectionStatus("Speed is : " + speed + "Mbps, at " + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime().getTime()) + "\n");
             }
 
             try {
