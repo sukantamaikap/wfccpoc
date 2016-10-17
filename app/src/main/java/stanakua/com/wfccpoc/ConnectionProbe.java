@@ -16,15 +16,20 @@
 
 package stanakua.com.wfccpoc;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Helper class to check
@@ -32,6 +37,7 @@ import java.net.URL;
 public class ConnectionProbe {
 
     private static String TAG = ConnectionProbe.class.getSimpleName();
+    private static List<String> mBrowsingTestUrl = Arrays.asList("https://500px.com/","https://www.google.co.in/", "https://in.yahoo.com/", "https://www.reddit.com/", "");
 
     /**
      * This is a thin client. Only concentrates on ensuring that it can connect to :
@@ -48,7 +54,7 @@ public class ConnectionProbe {
                 urlConnection.setConnectTimeout(1500);
                 urlConnection.connect();
                 final long endTime = System.currentTimeMillis();
-                Log.i(TAG, "Thin access operation finished in mS : " + (endTime - startTime));
+                Log.v(TAG, "Thin access operation finished in mS : " + (endTime - startTime));
                 return (urlConnection.getResponseCode() == 204 && urlConnection.getContentLength() == 0);
             } catch (IOException e) {
                 Log.d(TAG, "Error establishing connection, internet connection unavailable!");
@@ -65,8 +71,39 @@ public class ConnectionProbe {
      * and calculate the time required to fetch the entire content of the page. This can be denoted as browsing speed.
      * @param context
      */
-    public static long calculateBrowsingSpeed(final Context context) {
-        return 1L;
+    public static float calculateBrowsingSpeed(final Context context) {
+        ByteArrayOutputStream outputStream = null;
+        InputStream inputStream = null;
+        if (isNetworkAvailable(context)) {
+            SecureRandom random = new SecureRandom();
+            final int index = random.nextInt(mBrowsingTestUrl.size() + 1);
+            try {
+                outputStream = new ByteArrayOutputStream();
+                final long startTime = System.currentTimeMillis();
+                HttpURLConnection urlc = (HttpURLConnection) (new URL("https://www.reddit.com/").openConnection());
+                if (urlc.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    throw new IOException(urlc.getResponseMessage() + " : with ");
+                }
+                inputStream = urlc.getInputStream();
+                int byteRead = 0;
+                final byte[] buffer = new byte[1024];
+                while ((byteRead = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, byteRead);
+                }
+                final long endTime = System.currentTimeMillis();
+                final float speed = (outputStream.toByteArray().length * 1000f * 8f/ (1024f * 1024f)) / ((endTime - startTime));
+                Log.i(TAG, "Calculated speed in Mbps " + speed);
+                return speed;
+            } catch (MalformedURLException e) {
+                Log.e(TAG, "Exception occurred : ", e);
+            } catch (IOException e) {
+                Log.e(TAG, "Exception occurred : ", e);
+            }finally {
+//                outputStream.close();
+//                inputStream.close();
+            }
+        }
+        return 0.0000000001f;
     }
 
     /**
@@ -75,6 +112,9 @@ public class ConnectionProbe {
      * @return speed in Mbps
      */
     public static long calculateDownloadSpeed(final Context context) {
+        if (isNetworkAvailable(context)) {
+
+        }
         return 1L;
     }
 
@@ -84,6 +124,9 @@ public class ConnectionProbe {
      * @return speed in Mbps
      */
     public static long calculateUploadSpeed(final Context context) {
+        if (isNetworkAvailable(context)) {
+
+        }
         return 1L;
     }
 

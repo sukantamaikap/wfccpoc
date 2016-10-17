@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.util.Calendar;
 
@@ -44,11 +45,16 @@ public class NetworkProbingThread extends Thread {
     public void run() {
         Log.i(TAG, "running network probe");
         while (this.mRunning) {
-            final boolean hasConnection = ConnectionProbe.hasInternetAccess(mContext);
+            final boolean hasConnection = ConnectionProbe.hasInternetAccess(this.mContext);
             if (!hasConnection) {
                 ((ConnectionProbeFragment)this.callingFragment)
                         .updateConnectionStatus("NC at : "
                                 + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
+            }
+
+            if (hasConnection && new SecureRandom().nextBoolean()) {
+                final float speed = ConnectionProbe.calculateBrowsingSpeed(this.mContext);
+                ((ConnectionProbeFragment)this.callingFragment).updateConnectionStatus("Speed is : " + speed + "Mbps, at " + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()) + "\n");
             }
 
             try {
