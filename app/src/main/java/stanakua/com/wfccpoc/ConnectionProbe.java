@@ -77,7 +77,7 @@ public class ConnectionProbe {
      * and calculate the time required to fetch the entire content of the page. This can be denoted as browsing speed.
      * @param context
      */
-    public static float calculateBrowsingSpeed(final Context context) {
+    public static float calculateBrowsingSpeed(final Context context) throws IOException {
         ByteArrayOutputStream outputStream = null;
         InputStream inputStream = null;
         SecureRandom random = new SecureRandom();
@@ -99,15 +99,22 @@ public class ConnectionProbe {
                 }
                 final long endTime = System.currentTimeMillis();
                 final float speed = (outputStream.toByteArray().length * 1000f * 8f/ (1024f * 1024f)) / ((endTime - startTime));
-                Log.i(TAG, "Calculated speed in Mbps " + speed + " for url : " + BROWSING_TEST_URL.get(index));
+                Log.i(TAG, "Calculated speed in Mbps " + speed + " for url : "
+                        + BROWSING_TEST_URL.get(index)
+                        + ". Content downloaded in MB : " + outputStream.toByteArray().length * 8f/ (1024f * 1024f));
                 return speed;
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Exception occurred : ", e);
             } catch (IOException e) {
                 Log.e(TAG, "Exception occurred : ", e);
             }finally {
-//                outputStream.close();
-//                inputStream.close();
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+
+                if (inputStream != null) {
+                    inputStream.close();
+                }
             }
         }
         Log.e(TAG, "Error occurred for url : " + BROWSING_TEST_URL.get(index));

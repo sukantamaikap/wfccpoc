@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -53,7 +54,12 @@ public class NetworkProbingThread extends Thread {
             }
 
             if (hasConnection && new SecureRandom().nextBoolean()) {
-                final float speed = ConnectionProbe.calculateBrowsingSpeed(this.mContext);
+                float speed = 0.0f;
+                try {
+                    speed = ConnectionProbe.calculateBrowsingSpeed(this.mContext);
+                } catch (IOException e) {
+                    Log.e(TAG, "Speed calculation errored out !!!");
+                }
                 ((ConnectionProbeFragment)this.callingFragment).updateConnectionStatus("Speed is : " + speed + "Mbps, at " + DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime().getTime()) + "\n");
             }
 
